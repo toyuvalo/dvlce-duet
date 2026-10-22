@@ -184,4 +184,32 @@ void DvlceDuetProcessor::setStateInformation(const void* data, int size) {
         if (xml->hasTagName(params.state.getType())) params.replaceState(juce::ValueTree::fromXml(*xml));
 }
 
+namespace {
+std::unique_ptr<juce::PropertiesFile> settingsFile() {
+    juce::PropertiesFile::Options o;
+    o.applicationName = "Dvlce Duet";
+    o.filenameSuffix = ".settings";
+    o.folderName = "Dvlce Duet";
+    o.osxLibrarySubFolder = "Application Support";
+    return std::make_unique<juce::PropertiesFile>(o);
+}
+const juce::Identifier kSplitLeft{"split_left"}, kSplitRight{"split_right"};
+}  // namespace
+
+juce::String DvlceDuetProcessor::splitPrefix(bool right) const {
+    const auto& id = right ? kSplitRight : kSplitLeft;
+    const juce::String saved = params.state.getProperty(id).toString();
+    if (saved.isNotEmpty()) return saved;
+    return settingsFile()->getValue(id.toString(), right ? "R_" : "L_");
+}
+
+void DvlceDuetProcessor::setSplitPrefixes(const juce::String& left, const juce::String& right) {
+    params.state.setProperty(kSplitLeft, left, nullptr);
+    params.state.setProperty(kSplitRight, right, nullptr);
+    auto f = settingsFile();
+    f->setValue(kSplitLeft.toString(), left);
+    f->setValue(kSplitRight.toString(), right);
+    f->saveIfNeeded();
+}
+
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new DvlceDuetProcessor(); }

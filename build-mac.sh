@@ -14,4 +14,4 @@ cmake -S . -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=
     -DDVLCE_DUET_BUILD_PLUGIN=$PLUGIN $JUCEARG
 cmake --build "$BUILD_DIR" -j "${JOBS:-2}"
 "$BUILD_DIR/dvlce_duet_core_tests"
-if [ "$PLUGIN" = "ON" ]; then "$BUILD_DIR/plugin/DvlceDuetSidechainTest"; fi
+if [ "$PLUGIN" = "ON" ]; then "$BUILD_DIR/plugin/DvlceDuetSidechainTest"; "$BUILD_DIR/plugin/DvlceDuetSplitTest"; fi

@@ -23,7 +23,7 @@ Download the zip for your system from [Releases](https://github.com/toyuvalo/dvl
 | Mode | What goes in | Use it in |
 |---|---|---|
 | **Stereo pair** | One stereo track: left = speaker A, right = speaker B | Every host. The only way in Audacity and Premiere (no sidechain there). |
-| **Sidechain** | This track = speaker A, sidechain input = speaker B | FL Studio, Pro Tools, REAPER. One instance per speaker, each keyed from the other. |
+| **Sidechain** | This track = speaker A, sidechain input = speaker B | Hosts that can feed each instance the other speaker's track (REAPER, Pro Tools). One instance per speaker. **Not FL Studio:** see below. |
 
 **Output** (Stereo pair only): *Separate* keeps A left and B right. *Mixed* puts both gated voices on both
 channels, so the result is a finished centred dialogue track.
@@ -34,13 +34,27 @@ channels, so the result is a finished centred dialogue track.
   *Make Stereo Track*. Select it, then *Effect > Dvlce Duet*. Afterwards *Split Stereo to Mono* gives the two
   gated tracks back, or use Output = Mixed for one finished track. The first time, Audacity asks to enable
   the new plugin (or: *Effect > Plugin Manager*, enable Dvlce Duet).
-- **FL Studio**: put Duet on both speakers' mixer tracks, mode Sidechain. On A's track, right-click B's
-  route arrow > *Sidechain to this track*, and the other way round. In the plugin wrapper, set the
-  sidechain input to that track (Processing tab, *Sidechain* / input port).
+- **FL Studio**: FL cannot route a track to a track that is routed to it, so the two-instance sidechain
+  method does not work there. That is why Duet exists. Instead, record both microphones as **one stereo
+  input**: mic A on the left input, mic B on the right input. FL records that as one stereo track with each
+  speaker hard left and hard right. Put Duet on that track in **Stereo pair** mode. Output = **Mixed** puts
+  both gated voices back in the centre, so the track plays as a normal centred dialogue track. Output =
+  **Separate** keeps A left and B right, for a split afterwards (see below).
 - **Pro Tools**: AAX only. Insert Duet on both tracks, mode Sidechain, set each instance's *key input* to a
   bus carrying the other speaker. A mono key is supported.
 - **Premiere Pro**: select both clips, *Merge Clips* (or use a stereo clip with A left, B right), set the
   merged clip's channels to stereo L/R, then add Duet as a clip effect with Output = Mixed.
+
+## One file per speaker: Split L / R
+
+Export the stereo track (Output = Separate), then split it into one mono file per speaker:
+
+- **In the plugin:** type a left and a right prefix (for example `Host_` and `Guest_`), click
+  **Split a stereo file...** or drop the exported file onto the plugin. It writes `Host_<name>.wav` (left channel)
+  and `Guest_<name>.wav` (right channel) next to the file. WAV, AIFF and FLAC, sample-exact, never overwrites
+  (`_2`, `_3`, ...), both files or neither. The prefixes are remembered.
+- **In Windows Explorer:** [mono-izer](https://github.com/toyuvalo/mono-izer) ([page](https://webdev.dvlce.ca/mono-izer))
+  does the same from the right-click menu (**Split L / R...**), for many files at once and for MP3 too.
 
 ## Controls
 
@@ -73,6 +87,7 @@ AAX loads only in Pro Tools Developer. Retail Pro Tools needs the plugin signed 
 
 - `dvlce_duet_core_tests` (built by `build-win.bat`): the engine on synthetic speakers, 18 checks.
 - `DvlceDuetSidechainTest`: Sidechain mode on the real processor, mono key.
+- `DvlceDuetSplitTest`: Split L / R is sample-exact (16-bit, 24-bit, 32-bit float), names, no overwrite, refusals.
 - `bench/plugin_test.py <inner .vst3 binary>`: the built VST3 through pedalboard, Stereo pair mode.
 - pluginval strictness 10: pass.
 

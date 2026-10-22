@@ -41,6 +41,10 @@ public:
 
     juce::AudioProcessorValueTreeState params;
 
+    // Stereo split prefixes (the built-in mono-izer): saved with the project, and as the default for new instances.
+    juce::String splitPrefix(bool right) const;
+    void setSplitPrefixes(const juce::String& left, const juce::String& right);
+
     // Meters (written on the audio thread, read by the editor).
     std::atomic<float> meterLevel[2]{{-200.0f}, {-200.0f}}, meterGain[2]{{1.0f}, {1.0f}};
     std::atomic<bool> meterTalking[2]{{false}, {false}};

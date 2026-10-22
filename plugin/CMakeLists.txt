@@ -35,7 +35,7 @@ juce_add_plugin(DvlceDuet
     VST3_CATEGORIES             Fx Dynamics
     AAX_CATEGORY                AAX_ePlugInCategory_Dynamics)
 
-target_sources(DvlceDuet PRIVATE Source/PluginProcessor.cpp Source/PluginEditor.cpp)
+target_sources(DvlceDuet PRIVATE Source/PluginProcessor.cpp Source/PluginEditor.cpp Source/StereoSplitter.cpp)
 
 target_compile_definitions(DvlceDuet PUBLIC
     DVLCE_DUET_VERSION="${PROJECT_VERSION}"
@@ -60,3 +60,8 @@ target_include_directories(DvlceDuetSnapshot PRIVATE "${juce_SOURCE_DIR}/modules
 add_executable(DvlceDuetSidechainTest tools/sidechain_test.cpp)
 target_link_libraries(DvlceDuetSidechainTest PRIVATE DvlceDuet)
 target_include_directories(DvlceDuetSidechainTest PRIVATE "${juce_SOURCE_DIR}/modules")
+
+# Stereo splitter (built-in mono-izer): sample-exact split, names, no-overwrite, refusals: DvlceDuetSplitTest
+add_executable(DvlceDuetSplitTest tools/split_test.cpp)
+target_link_libraries(DvlceDuetSplitTest PRIVATE DvlceDuet)
+target_include_directories(DvlceDuetSplitTest PRIVATE "${juce_SOURCE_DIR}/modules" Source)

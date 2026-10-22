@@ -2,6 +2,8 @@
 // Copyright 2026 Yuval Olsha.  PolyForm Noncommercial 1.0.0 (see LICENSE).
 #include "PluginEditor.h"
 
+#include "StereoSplitter.h"
+
 namespace {
 const juce::Colour kBg{0xff16181d}, kPanel{0xff20232a}, kText{0xffe6e6e6}, kDim{0xff9aa0a6}, kAccent{0xffd9a441},
     kLevel{0xff5fb3a1}, kDuck{0xffd9534f};
@@ -17,7 +19,8 @@ DvlceDuetEditor::DvlceDuetEditor(DvlceDuetProcessor& p) : AudioProcessorEditor(&
 
     setupChoice(mode, "mode", "Mode",
                 "Stereo pair: one stereo track, left = speaker A, right = speaker B (any host).\n"
-                "Sidechain: this track = A, the sidechain input = B. Use one instance per speaker, each keyed from the other.");
+                "Sidechain: this track = A, the sidechain input = B. Use one instance per speaker, each keyed from the other.\n"
+                "FL Studio cannot route two tracks into each other: record both mics as one stereo track and use Stereo pair.");
     setupChoice(output, "output", "Output",
                 "Stereo pair only. Separate keeps A left and B right. Mixed puts both gated voices in the centre.");
     setupChoice(overlap, "overlap", "Overlap",
@@ -43,14 +46,81 @@ DvlceDuetEditor::DvlceDuetEditor(DvlceDuetProcessor& p) : AudioProcessorEditor(&
     status.setFont(juce::FontOptions(13.0f));
     addAndMakeVisible(status);
 
+    // Split row: the built-in mono-izer.  Export the stereo track, then split it into one file per speaker.
+    splitLabel.setText("Split L / R", juce::dontSendNotification);
+    splitLabel.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+    leftLabel.setText("Left prefix", juce::dontSendNotification);
+    rightLabel.setText("Right prefix", juce::dontSendNotification);
+    for (auto* l : {&splitLabel, &leftLabel, &rightLabel}) {
+        l->setColour(juce::Label::textColourId, kText);
+        addAndMakeVisible(l);
+    }
+    leftPrefix.setText(proc.splitPrefix(false), false);
+    rightPrefix.setText(proc.splitPrefix(true), false);
+    for (auto* e : {&leftPrefix, &rightPrefix}) {
+        e->setTooltip("Each output file is <prefix><file name>, next to the original. Example: Host_ and Guest_.");
+        addAndMakeVisible(e);
+    }
+    splitButton.setTooltip("Pick an exported stereo WAV, AIFF or FLAC: writes the left channel and the right channel as two "
+                           "mono files with these prefixes. Or drop the file onto the plugin.");
+    splitButton.onClick = [this] {
+        chooser = std::make_unique<juce::FileChooser>("Split a stereo file into two mono files",
+                                                      juce::File::getSpecialLocation(juce::File::userMusicDirectory),
+                                                      "*.wav;*.wave;*.aif;*.aiff;*.flac");
+        juce::Component::SafePointer<DvlceDuetEditor> safe(this);
+        chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+                             [safe](const juce::FileChooser& fc) {
+                                 if (safe != nullptr && fc.getResult() != juce::File()) safe->startSplit(fc.getResult());
+                             });
+    };
+    addAndMakeVisible(splitButton);
+    splitStatus.setColour(juce::Label::textColourId, kDim);
+    splitStatus.setFont(juce::FontOptions(12.0f));
+    splitStatus.setText("Drop an exported stereo file here, or pick one.", juce::dontSendNotification);
+    addAndMakeVisible(splitStatus);
+
     setResizable(true, true);
-    setResizeLimits(760, 440, 1600, 900);
-    setSize(860, 470);
+    setResizeLimits(760, 480, 1600, 900);
+    setSize(860, 510);
     startTimerHz(30);
     timerCallback();
 }
 
 DvlceDuetEditor::~DvlceDuetEditor() { setLookAndFeel(nullptr); }
+
+bool DvlceDuetEditor::isInterestedInFileDrag(const juce::StringArray& files) {
+    return files.size() == 1 && juce::File(files[0]).hasFileExtension("wav;wave;aif;aiff;flac");
+}
+
+void DvlceDuetEditor::filesDropped(const juce::StringArray& files, int, int) {
+    if (files.size() == 1) startSplit(juce::File(files[0]));
+}
+
+void DvlceDuetEditor::startSplit(const juce::File& file) {
+    if (splitting) return;
+    const juce::String l = leftPrefix.getText().trim(), r = rightPrefix.getText().trim();
+    if (const auto bad = duetsplit::checkPrefixes(l, r); bad.isNotEmpty()) {
+        splitStatus.setColour(juce::Label::textColourId, juce::Colours::orangered);
+        splitStatus.setText(bad, juce::dontSendNotification);
+        return;
+    }
+    proc.setSplitPrefixes(l, r);
+    splitting = true;
+    splitButton.setEnabled(false);
+    splitStatus.setColour(juce::Label::textColourId, kDim);
+    splitStatus.setText("Splitting " + file.getFileName() + " ...", juce::dontSendNotification);
+    juce::Component::SafePointer<DvlceDuetEditor> safe(this);
+    splitPool.addJob([safe, file, l, r] {
+        const auto result = duetsplit::split(file, l, r);
+        juce::MessageManager::callAsync([safe, result] {
+            if (safe == nullptr) return;
+            safe->splitting = false;
+            safe->splitButton.setEnabled(true);
+            safe->splitStatus.setColour(juce::Label::textColourId, result.ok ? kAccent : juce::Colours::orangered);
+            safe->splitStatus.setText(result.message, juce::dontSendNotification);
+        });
+    });
+}
 
 void DvlceDuetEditor::setupKnob(Knob& k, const char* id, const char* text, const char* tip) {
     k.slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 90, 20);
@@ -85,7 +155,7 @@ void DvlceDuetEditor::timerCallback() {
         s = proc.sidechainConnected.load() ? "Sidechain: this track = A, sidechain = B. Route the other speaker's track to the sidechain."
                                            : "Sidechain mode, but the host gives this plugin no sidechain input. Enable it, or use Stereo pair.";
     else
-        s = proc.stereoInput.load() ? "Stereo pair: left = A, right = B. Mono tracks? Join them into one stereo track first."
+        s = proc.stereoInput.load() ? "Stereo pair: left = A, right = B. FL Studio: record both mics as one stereo input (mic A left, mic B right)."
                                     : "Stereo pair needs a stereo track (left = A, right = B). This track is mono, so B is silent.";
     status.setText(s, juce::dontSendNotification);
     repaint(meterArea);
@@ -160,6 +230,17 @@ void DvlceDuetEditor::resized() {
     auto r = getLocalBounds().reduced(12);
     r.removeFromTop(44);
     status.setBounds(r.removeFromBottom(22));
+    auto splitRow = r.removeFromBottom(30);
+    splitLabel.setBounds(splitRow.removeFromLeft(90));
+    leftLabel.setBounds(splitRow.removeFromLeft(78));
+    leftPrefix.setBounds(splitRow.removeFromLeft(90).reduced(0, 3));
+    splitRow.removeFromLeft(10);
+    rightLabel.setBounds(splitRow.removeFromLeft(86));
+    rightPrefix.setBounds(splitRow.removeFromLeft(90).reduced(0, 3));
+    splitRow.removeFromLeft(12);
+    splitButton.setBounds(splitRow.removeFromLeft(170).reduced(0, 2));
+    splitRow.removeFromLeft(10);
+    splitStatus.setBounds(splitRow);
     r.removeFromBottom(6);
     meterArea = r.removeFromLeft(220).reduced(6);
     r.removeFromLeft(12);
