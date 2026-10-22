@@ -1,6 +1,6 @@
 // Sidechain mode check on the real processor: main = speaker A, sidechain = speaker B.
 //   DvlceDuetSidechainTest      (exit 0 = pass)
-// Copyright 2026 Yuval Olsha.
+// Copyright 2026 Yuval Olsha.  PolyForm Noncommercial 1.0.0 (see LICENSE).
 #include <juce_audio_processors/juce_audio_processors.h>
 
 #include <cmath>

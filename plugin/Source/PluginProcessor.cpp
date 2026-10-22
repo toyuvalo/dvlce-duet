@@ -1,5 +1,5 @@
 // Dvlce Duet - processor.
-// Copyright 2026 Yuval Olsha.
+// Copyright 2026 Yuval Olsha.  PolyForm Noncommercial 1.0.0 (see LICENSE).
 #include "PluginProcessor.h"
 
 #include "PluginEditor.h"

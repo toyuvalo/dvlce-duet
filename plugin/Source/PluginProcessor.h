@@ -1,5 +1,5 @@
 // Dvlce Duet - processor: bus layouts, parameters, and the engine.
-// Copyright 2026 Yuval Olsha.
+// Copyright 2026 Yuval Olsha.  PolyForm Noncommercial 1.0.0 (see LICENSE).
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>

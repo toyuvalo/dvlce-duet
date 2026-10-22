@@ -1,5 +1,5 @@
 // Dvlce Duet - engine tests.  Synthetic speakers: deterministic noise bursts at known levels.
-// Copyright 2026 Yuval Olsha.
+// Copyright 2026 Yuval Olsha.  PolyForm Noncommercial 1.0.0 (see LICENSE).
 #include <cmath>
 #include <cstdint>
 #include <cstdio>

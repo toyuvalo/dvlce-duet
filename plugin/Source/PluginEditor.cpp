@@ -1,5 +1,5 @@
 // Dvlce Duet - editor.
-// Copyright 2026 Yuval Olsha.
+// Copyright 2026 Yuval Olsha.  PolyForm Noncommercial 1.0.0 (see LICENSE).
 #include "PluginEditor.h"
 
 namespace {

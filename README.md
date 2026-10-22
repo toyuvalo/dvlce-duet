@@ -4,7 +4,19 @@ A mutual ducking gate for two speakers (podcasts, interviews, dialogue). When on
 person's mic drops by a set depth. Mic bleed (the other voice leaking into a mic) is rejected, so the
 quiet mic stays ducked even though it hears the talker.
 
-Formats: VST3 + Standalone (Windows, macOS), AU (macOS), AAX (Pro Tools, needs the AAX SDK: see below).
+Formats: VST3 + Standalone (Windows, macOS), AU (macOS). AAX for Pro Tools is not in the release yet (it needs the
+AAX SDK and PACE signing: see Build).
+
+## Install
+
+Download the zip for your system from [Releases](https://github.com/toyuvalo/dvlce-duet/releases/latest).
+
+- **Windows:** copy `Dvlce Duet.vst3` to `C:\Program Files\Common Files\VST3\`, then rescan plugins in your host.
+- **macOS:** copy `Dvlce Duet.component` to `~/Library/Audio/Plug-Ins/Components/` and `Dvlce Duet.vst3` to
+  `~/Library/Audio/Plug-Ins/VST3/`. Not notarised: if macOS blocks it, run
+  `xattr -dr com.apple.quarantine "<path to the plugin>"` once.
+
+![Dvlce Duet editor](docs/editor.png)
 
 ## Two ways to connect the speakers
 
@@ -50,7 +62,7 @@ the gold line is the threshold, the red bar is how far the speaker is ducked.
 
 ## Build
 
-Windows: `build-win.bat` (VS 2022 Build Tools, CMake, Ninja). JUCE 8.0.13 is fetched. Optional env:
+Windows: `build-win.bat` (VS 2022 Build Tools, CMake, Ninja). macOS: `./build-mac.sh` (universal). JUCE 8.0.13 is fetched. Optional env:
 `JUCE_DIR`, `BUILD_DIR`, `AAX_SDK`.
 
 AAX: get the AAX SDK from the Avid Developer Program, then `set AAX_SDK=<folder>` and build. An unsigned
@@ -64,4 +76,23 @@ AAX loads only in Pro Tools Developer. Retail Pro Tools needs the plugin signed 
 - `bench/plugin_test.py <inner .vst3 binary>`: the built VST3 through pedalboard, Stereo pair mode.
 - pluginval strictness 10: pass.
 
-Copyright 2026 Yuval Olsha. Private.
+## Licence
+
+**Free for non-commercial use. If you make money with it, you need a licence from the author first.**
+
+The code is under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+- You may use, change and share it for any non-commercial purpose: personal podcasts and projects, hobby,
+  study, research, education, charities and public bodies.
+- Paid work needs a commercial licence first: editing a podcast or video for a client, a monetised show,
+  use inside a company, or selling or bundling the plugin or code derived from it. See [`COMMERCIAL.md`](COMMERCIAL.md).
+
+This is source-available software, not OSI "open source". The `LICENSE` text governs; this section is a summary.
+
+### JUCE licence
+
+The plugin links [JUCE 8](https://juce.com), which has its own licence: AGPLv3 or a JUCE licence
+(the free Starter tier, or Indie/Pro). The released builds are made under the author's JUCE licence.
+If you build and share your own binaries, JUCE's terms apply to you as well.
+
+Required Notice: Copyright 2026 Yuval Olsha (https://github.com/toyuvalo)

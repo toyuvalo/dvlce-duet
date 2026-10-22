@@ -1,6 +1,6 @@
 // Renders the plugin editor offscreen to a PNG (no window is shown).  Used to check the GUI in builds.
 //   DvlceDuetSnapshot <out.png> [mode index]
-// Copyright 2026 Yuval Olsha.
+// Copyright 2026 Yuval Olsha.  PolyForm Noncommercial 1.0.0 (see LICENSE).
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 

@@ -1,5 +1,5 @@
 // Dvlce Duet - mutual ducking gate for two speakers.  No JUCE: the plugin and the tests share this engine.
-// Copyright 2026 Yuval Olsha.
+// Copyright 2026 Yuval Olsha.  PolyForm Noncommercial 1.0.0 (see LICENSE).
 //
 // Two detector signals in (speaker A, speaker B), two gain curves out.  When one speaker talks the other
 // is ducked by `depthDb`.  The detector sees the undelayed input; the plugin delays the audio by
