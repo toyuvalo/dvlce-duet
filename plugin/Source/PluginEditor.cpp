@@ -14,6 +14,7 @@ DvlceDuetEditor::DvlceDuetEditor(DvlceDuetProcessor& p) : AudioProcessorEditor(&
     header(p, p.params, look, "Duet", "dvlce-duet", DVLCE_DUET_VERSION, "MUTUAL DUCKING GATE  /  TWO SPEAKERS") {
     setLookAndFeel(&look);
     addAndMakeVisible(header);
+    header.setBufferedToImage(true);
 
     setupChoice(mode, "mode", "Mode",
                 "Stereo pair: one stereo track, left = speaker A, right = speaker B (any host).\n"
@@ -121,6 +122,8 @@ void DvlceDuetEditor::startSplit(const juce::File& file) {
 }
 
 void DvlceDuetEditor::setupKnob(Knob& k, const char* id, const char* text, const char* tip) {
+    k.slider.setBufferedToImage(true);
+    k.label.setBufferedToImage(true);
     k.slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 112, 24);
     k.slider.setTooltip(tip);
     k.label.setText(text, juce::dontSendNotification);
@@ -134,6 +137,8 @@ void DvlceDuetEditor::setupKnob(Knob& k, const char* id, const char* text, const
 }
 
 void DvlceDuetEditor::setupChoice(Choice& c, const char* id, const char* text, const char* tip) {
+    c.box.setBufferedToImage(true);
+    c.label.setBufferedToImage(true);
     c.box.addItemList(proc.params.getParameter(id)->getAllValueStrings(), 1);
     c.box.setTooltip(tip);
     c.label.setText(text, juce::dontSendNotification);
@@ -211,10 +216,15 @@ void DvlceDuetEditor::paintMeter(juce::Graphics& g, juce::Rectangle<int> r, int 
 
 void DvlceDuetEditor::paint(juce::Graphics& g) {
     dvlce::ui::Theme::Scope scope(*this);
-    g.fillAll(kBg);
-    g.setColour(kPanel);
-    g.fillRoundedRectangle(meterArea.toFloat().expanded(6.0f), 6.0f);
-    g.fillRoundedRectangle(panelArea.toFloat(), 6.0f);
+    if (!background.isValid()) {
+        background = juce::Image(juce::Image::RGB, getWidth(), getHeight(), false);
+        juce::Graphics cached(background);
+        dvlce::ui::Theme::Scope scope(*this);
+        cached.fillAll(kBg);
+        dvlce::ui::Theme::glass(cached, meterArea.toFloat().expanded(6.0f));
+        dvlce::ui::Theme::glass(cached, panelArea.toFloat());
+    }
+    g.drawImageAt(background, 0, 0);
 
     const bool keyed = mode.box.getSelectedItemIndex() == 1;
     auto m = meterArea;
@@ -224,6 +234,7 @@ void DvlceDuetEditor::paint(juce::Graphics& g) {
 }
 
 void DvlceDuetEditor::resized() {
+    background = {};
     auto r = getLocalBounds().reduced(12);
     header.setBounds(r.removeFromTop(76));
     r.removeFromTop(12);

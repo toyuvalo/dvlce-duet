@@ -41,6 +41,7 @@ private:
     DvlceDuetProcessor& proc;
     dvlce::ui::DvlceLookAndFeel look{dvlce::ui::ThemeId::Quantum};
     dvlce::ui::QuantumHeader header;
+    juce::Image background;
     juce::TooltipWindow tooltips{this, 600};
     Knob thrA, thrB, depth, bleed, hysteresis, open, hold, close, lookahead, hp;
     Choice mode, output, overlap;
