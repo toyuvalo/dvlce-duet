@@ -23,6 +23,7 @@ int main() {
     check(!bank.validParams(invalid), "reject incomplete presets");
     check(!bank.apply(-1), "reject invalid index");
     bank.apply(0);
+    processor.setSplitPrefixes("Host_", "Guest_");
     auto expected = bank.capture();
     const auto name = "CI roundtrip " + juce::Uuid().toString();
     const auto saved = bank.save(name);
@@ -40,6 +41,9 @@ int main() {
     bank.apply(1);
     processor.setStateInformation(state.getData(), static_cast<int>(state.getSize()));
     check(bank.selected() == user, "host state restores preset name");
+    DvlceDuetProcessor fresh;
+    fresh.setStateInformation(state.getData(), static_cast<int>(state.getSize()));
+    check(fresh.splitPrefix(false) == "Host_" && fresh.splitPrefix(true) == "Guest_", "split prefixes survive in a fresh processor");
     // This uniquely named test file was created above on the ephemeral CI runner.
     bank.directory().getChildFile(name+".json").deleteFile();
     std::cout << "PRESET TESTS: " << (failures ? "FAIL" : "PASS") << "\n";

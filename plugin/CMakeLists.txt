@@ -78,5 +78,5 @@ if(MSVC)
 endif()
 
 add_executable(DvlceDuetPresetTest tools/preset_test.cpp)
-target_link_libraries(DvlceDuetPresetTest PRIVATE DvlceDuet)
+target_link_libraries(DvlceDuetPresetTest PRIVATE DvlceDuet dvlce_duet_core)
 target_include_directories(DvlceDuetPresetTest PRIVATE "${juce_SOURCE_DIR}/modules")

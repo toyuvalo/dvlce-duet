@@ -49,6 +49,8 @@ public:
         for (auto* b : {&previous, &name, &next, &save, &motion}) addAndMakeVisible(b);
         addAndMakeVisible(wave);
         look.setAccent(Accent::Amber);
+        if (!state.state.hasProperty("uiReduceMotion"))
+            state.state.setProperty("uiReduceMotion", defaultReduceMotion, nullptr);
         motion.getProperties().set("dvlceLed", true);
         previous.setTooltip("Previous preset");
         next.setTooltip("Next preset");
