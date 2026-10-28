@@ -51,7 +51,7 @@ public:
         for (auto* parameter : processor.getParameters()) {
             auto* p = dynamic_cast<juce::RangedAudioParameter*>(parameter);
             p->beginChangeGesture();
-            p->setValueNotifyingHost(p->convertTo0to1(static_cast<float>(e.params[p->paramID])));
+            p->setValueNotifyingHost(p->convertTo0to1(static_cast<float>(e.params[juce::Identifier(p->paramID)])));
             p->endChangeGesture();
         }
         state.state.setProperty("presetName", e.name, nullptr);
@@ -77,7 +77,7 @@ public:
         const auto& e = entries[static_cast<size_t>(index)];
         for (auto* parameter : processor.getParameters()) {
             auto* p = dynamic_cast<juce::RangedAudioParameter*>(parameter);
-            if (std::abs(p->getValue() - p->convertTo0to1(static_cast<float>(e.params[p->paramID]))) > 0.0001f)
+            if (std::abs(p->getValue() - p->convertTo0to1(static_cast<float>(e.params[juce::Identifier(p->paramID)]))) > 0.0001f)
                 return false;
         }
         return true;

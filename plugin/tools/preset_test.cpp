@@ -33,7 +33,7 @@ int main() {
     check(bank.apply(user), "load saved user preset");
     for (auto* parameter : processor.getParameters()) {
         auto* p = dynamic_cast<juce::RangedAudioParameter*>(parameter);
-        check(std::abs(p->getValue()-p->convertTo0to1(static_cast<float>(expected[p->paramID]))) < .0001f, "saved parameter roundtrip");
+        check(std::abs(p->getValue()-p->convertTo0to1(static_cast<float>(expected[juce::Identifier(p->paramID)]))) < .0001f, "saved parameter roundtrip");
     }
     juce::MemoryBlock state;
     processor.getStateInformation(state);
