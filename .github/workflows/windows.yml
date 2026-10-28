@@ -11,6 +11,17 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+      # windows-latest moved to VS 2026. Keep the requested VS 2022 compiler.
+      - name: Ensure VS 2022 C++ build tools
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs2022 = & $vswhere -products '*' -version '[17.0,18.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vs2022) {
+            Invoke-WebRequest https://aka.ms/vs/17/release/vs_BuildTools.exe -OutFile "$env:RUNNER_TEMP\vs2022.exe"
+            $installer = Start-Process "$env:RUNNER_TEMP\vs2022.exe" -WindowStyle Hidden -Wait -PassThru -ArgumentList '--quiet','--wait','--norestart','--nocache','--add','Microsoft.VisualStudio.Workload.VCTools','--includeRecommended'
+            if ($installer.ExitCode -notin 0,3010) { throw "VS 2022 installation failed: $($installer.ExitCode)" }
+          }
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
