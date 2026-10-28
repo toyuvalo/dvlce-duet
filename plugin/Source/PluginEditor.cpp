@@ -5,17 +5,16 @@
 #include "StereoSplitter.h"
 
 namespace {
-const juce::Colour kBg{0xff16181d}, kPanel{0xff20232a}, kText{0xffe6e6e6}, kDim{0xff9aa0a6}, kAccent{0xffd9a441},
-    kLevel{0xff5fb3a1}, kDuck{0xffd9534f};
+const juce::Colour kBg{0xff10151b}, kPanel{0xff172028}, kText{0xffe8f0f5}, kDim{0xffa3b4c2}, kAccent{0xffffb21f},
+    kLevel{0xffffb21f}, kDuck{0xffff6a2b};
 constexpr float kMeterFloorDb = -80.0f;
 }  // namespace
 
-DvlceDuetEditor::DvlceDuetEditor(DvlceDuetProcessor& p) : AudioProcessorEditor(&p), proc(p) {
-    look.setColourScheme(juce::LookAndFeel_V4::getMidnightColourScheme());
-    look.setColour(juce::Slider::rotarySliderFillColourId, kAccent);
-    look.setColour(juce::Slider::thumbColourId, kAccent);
-    look.setColour(juce::ToggleButton::tickColourId, kAccent);
+DvlceDuetEditor::DvlceDuetEditor(DvlceDuetProcessor& p) : AudioProcessorEditor(&p), proc(p),
+    header(p, p.params, look, "Duet", "dvlce-duet", DVLCE_DUET_VERSION, "MUTUAL DUCKING GATE  /  TWO SPEAKERS") {
     setLookAndFeel(&look);
+    addAndMakeVisible(header);
+    header.setBufferedToImage(true);
 
     setupChoice(mode, "mode", "Mode",
                 "Stereo pair: one stereo track, left = speaker A, right = speaker B (any host).\n"
@@ -80,8 +79,8 @@ DvlceDuetEditor::DvlceDuetEditor(DvlceDuetProcessor& p) : AudioProcessorEditor(&
     addAndMakeVisible(splitStatus);
 
     setResizable(true, true);
-    setResizeLimits(760, 480, 1600, 900);
-    setSize(860, 510);
+    setResizeLimits(1000, 620, 1600, 1000);
+    setSize(1000, 620);
     startTimerHz(30);
     timerCallback();
 }
@@ -123,7 +122,9 @@ void DvlceDuetEditor::startSplit(const juce::File& file) {
 }
 
 void DvlceDuetEditor::setupKnob(Knob& k, const char* id, const char* text, const char* tip) {
-    k.slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 90, 20);
+    k.slider.setBufferedToImage(true);
+    k.label.setBufferedToImage(true);
+    k.slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 112, 24);
     k.slider.setTooltip(tip);
     k.label.setText(text, juce::dontSendNotification);
     k.label.setJustificationType(juce::Justification::centred);
@@ -136,6 +137,8 @@ void DvlceDuetEditor::setupKnob(Knob& k, const char* id, const char* text, const
 }
 
 void DvlceDuetEditor::setupChoice(Choice& c, const char* id, const char* text, const char* tip) {
+    c.box.setBufferedToImage(true);
+    c.label.setBufferedToImage(true);
     c.box.addItemList(proc.params.getParameter(id)->getAllValueStrings(), 1);
     c.box.setTooltip(tip);
     c.label.setText(text, juce::dontSendNotification);
@@ -158,6 +161,7 @@ void DvlceDuetEditor::timerCallback() {
         s = proc.stereoInput.load() ? "Stereo pair: left = A, right = B. FL Studio: record both mics as one stereo input (mic A left, mic B right)."
                                     : "Stereo pair needs a stereo track (left = A, right = B). This track is mono, so B is silent.";
     status.setText(s, juce::dontSendNotification);
+    look.reportActivity(juce::Decibels::decibelsToGain(juce::jmax(proc.meterLevel[0].load(), proc.meterLevel[1].load())));
     repaint(meterArea);
 }
 
@@ -168,13 +172,13 @@ void DvlceDuetEditor::paintMeter(juce::Graphics& g, juce::Rectangle<int> r, int 
     const float thr = proc.params.getRawParameterValue(speaker == 0 ? "thr_a" : "thr_b")->load();
 
     g.setColour(kText);
-    g.setFont(juce::FontOptions(15.0f, juce::Font::bold));
+    g.setFont(dvlce::ui::Theme::type(15, true));
     g.drawText(name, r.removeFromTop(22), juce::Justification::centred);
     auto lamp = r.removeFromBottom(22);
     g.setColour(talking ? kAccent : kPanel.brighter(0.15f));
     g.fillRoundedRectangle(lamp.reduced(4, 3).toFloat(), 4.0f);
     g.setColour(talking ? kBg : kDim);
-    g.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+    g.setFont(dvlce::ui::Theme::font(12, true));
     g.drawText(talking ? "TALKING" : "quiet", lamp, juce::Justification::centred);
     r.removeFromBottom(6);
 
@@ -198,26 +202,29 @@ void DvlceDuetEditor::paintMeter(juce::Graphics& g, juce::Rectangle<int> r, int 
     const float gy = toY(kMeterFloorDb - gainDb, gainBar);  // -30 dB of gain fills 30 dB of scale from the top
     g.fillRect(juce::Rectangle<float>(float(gainBar.getX()), float(gainBar.getY()), float(gainBar.getWidth()),
                                       float(gainBar.getBottom()) - gy));
+    // Segment the two meter columns without repainting the rest of the editor.
+    g.setColour(kPanel);
+    for (int y = levelBar.getY(); y < levelBar.getBottom(); y += 7) {
+        g.fillRect(levelBar.getX(), y, levelBar.getWidth(), 2);
+        g.fillRect(gainBar.getX(), y, gainBar.getWidth(), 2);
+    }
     g.setColour(kDim);
-    g.setFont(juce::FontOptions(11.0f));
+    g.setFont(dvlce::ui::Theme::font(12));
     g.drawText("level", levelBar.withY(levelBar.getBottom() - 14).withHeight(14), juce::Justification::centred);
     g.drawText("duck", gainBar.withY(gainBar.getBottom() - 14).withHeight(14), juce::Justification::centred);
 }
 
 void DvlceDuetEditor::paint(juce::Graphics& g) {
-    g.fillAll(kBg);
-    auto r = getLocalBounds().reduced(12);
-    auto head = r.removeFromTop(36);
-    g.setColour(kText);
-    g.setFont(juce::FontOptions(22.0f, juce::Font::bold));
-    g.drawText("Dvlce Duet", head.removeFromLeft(150), juce::Justification::centredLeft);
-    g.setColour(kDim);
-    g.setFont(juce::FontOptions(13.0f));
-    g.drawText("v" DVLCE_DUET_VERSION "   mutual ducking gate: when one speaker talks, the other is ducked", head,
-               juce::Justification::centredLeft);
-    g.setColour(kPanel);
-    g.fillRoundedRectangle(meterArea.toFloat().expanded(6.0f), 6.0f);
-    g.fillRoundedRectangle(panelArea.toFloat(), 6.0f);
+    dvlce::ui::Theme::Scope scope(*this);
+    if (!background.isValid()) {
+        background = juce::Image(juce::Image::RGB, getWidth(), getHeight(), false);
+        juce::Graphics cached(background);
+        dvlce::ui::Theme::Scope scope(*this);
+        cached.fillAll(kBg);
+        dvlce::ui::Theme::glass(cached, meterArea.toFloat().expanded(6.0f));
+        dvlce::ui::Theme::glass(cached, panelArea.toFloat());
+    }
+    g.drawImageAt(background, 0, 0);
 
     const bool keyed = mode.box.getSelectedItemIndex() == 1;
     auto m = meterArea;
@@ -227,10 +234,13 @@ void DvlceDuetEditor::paint(juce::Graphics& g) {
 }
 
 void DvlceDuetEditor::resized() {
+    background = {};
     auto r = getLocalBounds().reduced(12);
-    r.removeFromTop(44);
+    header.setBounds(r.removeFromTop(76));
+    r.removeFromTop(12);
     status.setBounds(r.removeFromBottom(22));
-    auto splitRow = r.removeFromBottom(30);
+    splitStatus.setBounds(r.removeFromBottom(22));
+    auto splitRow = r.removeFromBottom(34);
     splitLabel.setBounds(splitRow.removeFromLeft(90));
     leftLabel.setBounds(splitRow.removeFromLeft(78));
     leftPrefix.setBounds(splitRow.removeFromLeft(90).reduced(0, 3));
@@ -240,7 +250,7 @@ void DvlceDuetEditor::resized() {
     splitRow.removeFromLeft(12);
     splitButton.setBounds(splitRow.removeFromLeft(170).reduced(0, 2));
     splitRow.removeFromLeft(10);
-    splitStatus.setBounds(splitRow);
+
     r.removeFromBottom(6);
     meterArea = r.removeFromLeft(220).reduced(6);
     r.removeFromLeft(12);

@@ -111,3 +111,28 @@ The plugin links [JUCE 8](https://juce.com), which has its own licence: AGPLv3 o
 If you build and share your own binaries, JUCE's terms apply to you as well.
 
 Required Notice: Copyright 2026 Yuval Olsha (https://github.com/toyuvalo)
+
+## Quantum interface and presets (0.2.0)
+
+The amber Quantum interface uses the shared DVLCE knob, chip and font styles.
+The MOTION lamp switches the header animation on or off. This setting is stored with the session
+and remembered for new instances. Level meters stay live when decorative motion is off. Split L / R and file drop work as before.
+
+Use the header arrows or the category menu to load one of 16 designed factory presets.
+These are starting points; adjust the two thresholds for your recordings. Sidechain Dialogue needs a host sidechain input.
+An asterisk marks changed parameter values. SAVE creates a JSON user preset under
+`juce::File::userApplicationDataDirectory/Dvlce/Presets/Duet/`.
+Repeat names get numbered filenames. User presets include the plugin state
+and split prefixes; they do not require the original model file.
+Factory presets are embedded from [presets/factory.json](presets/factory.json), in real parameter units.
+
+The vendored UI code lives in `plugin/Source/ui/`; it has no private repository dependency.
+Rajdhani by Indian Type Foundry and Barlow Semi Condensed by Jeremy Tribby use the SIL Open Font License:
+[OFL-Rajdhani.txt](plugin/Source/ui/fonts/OFL-Rajdhani.txt),
+[OFL-Barlow.txt](plugin/Source/ui/fonts/OFL-Barlow.txt).
+Only the two font families and the needed theme, look-and-feel and header/preset code are included.
+
+GitHub-hosted Windows and macOS workflows build the plugins, run core and preset tests,
+validate at pluginval strictness 10 with GUI tests skipped, and render offscreen editor PNGs.
+The snapshot tool verifies the saved PNG and prints the full-editor paint time at 100%.
+`docs/editor.png` comes from the CI snapshot artifact.

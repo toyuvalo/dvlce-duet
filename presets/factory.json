@@ -1,0 +1,343 @@
+{
+  "format": "dvlce-presets",
+  "version": 1,
+  "plugin": "dvlce-duet",
+  "presets": [
+    {
+      "name": "Close Mic Hosts",
+      "category": "Podcast",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -36,
+        "thr_b": -36,
+        "depth": 24,
+        "bleed": 12,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 180,
+        "close": 150,
+        "lookahead": 3,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Quiet Guest",
+      "category": "Interview",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -32,
+        "thr_b": -48,
+        "depth": 24,
+        "bleed": 14,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 260,
+        "close": 220,
+        "lookahead": 3,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Quiet Host",
+      "category": "Interview",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -48,
+        "thr_b": -32,
+        "depth": 24,
+        "bleed": 14,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 260,
+        "close": 220,
+        "lookahead": 3,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Shared Room Interview",
+      "category": "Interview",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -34,
+        "thr_b": -38,
+        "depth": 36,
+        "bleed": 7,
+        "hysteresis": 4,
+        "open": 2,
+        "hold": 140,
+        "close": 150,
+        "lookahead": 3,
+        "hp": 130,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Fast Crosstalk",
+      "category": "Dialogue",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -40,
+        "thr_b": -40,
+        "depth": 18,
+        "bleed": 16,
+        "hysteresis": 3,
+        "open": 1,
+        "hold": 60,
+        "close": 90,
+        "lookahead": 4,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Gentle Conversation",
+      "category": "Dialogue",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -40,
+        "thr_b": -40,
+        "depth": 9,
+        "bleed": 16,
+        "hysteresis": 3,
+        "open": 5,
+        "hold": 320,
+        "close": 450,
+        "lookahead": 0,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Firm Turn Taking",
+      "category": "Dialogue",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -40,
+        "thr_b": -40,
+        "depth": 36,
+        "bleed": 8,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 100,
+        "close": 110,
+        "lookahead": 3,
+        "hp": 100,
+        "overlap": 1,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Hard Silence",
+      "category": "Cleanup",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -36,
+        "thr_b": -36,
+        "depth": 80,
+        "bleed": 8,
+        "hysteresis": 5,
+        "open": 2,
+        "hold": 120,
+        "close": 100,
+        "lookahead": 5,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 1
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Soft Idle Gate",
+      "category": "Cleanup",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -46,
+        "thr_b": -46,
+        "depth": 15,
+        "bleed": 14,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 300,
+        "close": 400,
+        "lookahead": 3,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 1
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Reflective Room",
+      "category": "Cleanup",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -35,
+        "thr_b": -35,
+        "depth": 30,
+        "bleed": 6,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 100,
+        "close": 180,
+        "lookahead": 3,
+        "hp": 140,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Low Voice Pair",
+      "category": "Podcast",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -44,
+        "thr_b": -44,
+        "depth": 20,
+        "bleed": 12,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 240,
+        "close": 150,
+        "lookahead": 3,
+        "hp": 65,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Desk Rumble Guard",
+      "category": "Podcast",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -36,
+        "thr_b": -36,
+        "depth": 30,
+        "bleed": 10,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 180,
+        "close": 200,
+        "lookahead": 3,
+        "hp": 180,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Long Thoughtful Pauses",
+      "category": "Interview",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -40,
+        "thr_b": -40,
+        "depth": 18,
+        "bleed": 14,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 650,
+        "close": 550,
+        "lookahead": 3,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Separate Edit Tracks",
+      "category": "Routing",
+      "params": {
+        "mode": 0,
+        "output": 0,
+        "thr_a": -40,
+        "thr_b": -40,
+        "depth": 30,
+        "bleed": 10,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 180,
+        "close": 150,
+        "lookahead": 3,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Sidechain Dialogue",
+      "category": "Routing",
+      "params": {
+        "mode": 1,
+        "output": 0,
+        "thr_a": -40,
+        "thr_b": -40,
+        "depth": 24,
+        "bleed": 10,
+        "hysteresis": 3,
+        "open": 2,
+        "hold": 180,
+        "close": 150,
+        "lookahead": 3,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    },
+    {
+      "name": "Live No Lookahead",
+      "category": "Routing",
+      "params": {
+        "mode": 0,
+        "output": 1,
+        "thr_a": -40,
+        "thr_b": -40,
+        "depth": 18,
+        "bleed": 10,
+        "hysteresis": 3,
+        "open": 1,
+        "hold": 160,
+        "close": 180,
+        "lookahead": 0,
+        "hp": 100,
+        "overlap": 0,
+        "idle_gate": 0
+      },
+      "provenance": "designed"
+    }
+  ]
+}
