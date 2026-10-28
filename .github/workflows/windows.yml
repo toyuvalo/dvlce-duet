@@ -1,0 +1,64 @@
+name: windows
+on:
+  push:
+    branches: [main, 'feat/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+          vsversion: '2022'
+      - name: Configure VS 2022 and Ninja
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - name: Build VST3, Standalone and checks
+        run: cmake --build build --parallel 3
+      - name: Core and preset tests
+        shell: pwsh
+        run: |
+          & ./build/dvlce_duet_core_tests.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./build/plugin/DvlceDuetPresetTest.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./build/plugin/DvlceDuetSidechainTest.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./build/plugin/DvlceDuetSplitTest.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Offscreen snapshots at 100 percent
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path snapshots
+          & ./build/plugin/DvlceDuetSnapshot.exe snapshots/editor.png 0 1000 620
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./build/plugin/DvlceDuetSnapshot.exe snapshots/editor-alternate.png 1 1000 620
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-snapshots
+          path: snapshots/*.png
+          if-no-files-found: error
+      - name: pluginval strictness 10
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/download/v1.0.4/pluginval_Windows.zip -OutFile pluginval.zip
+          Expand-Archive pluginval.zip -DestinationPath pluginval
+          $pv = (Get-ChildItem pluginval -Recurse -Filter pluginval.exe | Select-Object -First 1).FullName
+          & $pv --strictness-level 10 --skip-gui-tests --validate-in-process --validate "build/plugin/DvlceDuet_artefacts/Release/VST3/Dvlce Duet.vst3" | Tee-Object -FilePath pluginval.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-validation
+          path: pluginval.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-plugins
+          path: |
+            build/plugin/DvlceDuet_artefacts/Release/VST3
+            build/plugin/DvlceDuet_artefacts/Release/Standalone

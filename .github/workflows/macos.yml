@@ -10,6 +10,7 @@ on:
 jobs:
   mac:
     runs-on: macos-14
+    timeout-minutes: 40
     permissions:
       contents: write
     steps:
@@ -17,6 +18,19 @@ jobs:
 
       - name: Build and test
         run: JOBS=3 sh ./build-mac.sh
+
+      - name: Presets and snapshots
+        run: |
+          ./build/plugin/DvlceDuetPresetTest
+          mkdir -p snapshots
+          ./build/plugin/DvlceDuetSnapshot snapshots/editor.png 0 1000 620
+          ./build/plugin/DvlceDuetSnapshot snapshots/editor-alternate.png 1 1000 620
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-snapshots
+          path: snapshots/*.png
+          if-no-files-found: error
 
       - name: Ad-hoc sign the bundles
         run: |

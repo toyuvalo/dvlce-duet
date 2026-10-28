@@ -6,6 +6,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include "PluginProcessor.h"
+#include "ui/QuantumHeader.h"
 
 class DvlceDuetEditor : public juce::AudioProcessorEditor, public juce::FileDragAndDropTarget, private juce::Timer {
 public:
@@ -38,7 +39,8 @@ private:
     void paintMeter(juce::Graphics&, juce::Rectangle<int> r, int speaker, const juce::String& name) const;
 
     DvlceDuetProcessor& proc;
-    juce::LookAndFeel_V4 look;
+    dvlce::ui::DvlceLookAndFeel look{dvlce::ui::ThemeId::Quantum};
+    dvlce::ui::QuantumHeader header;
     juce::TooltipWindow tooltips{this, 600};
     Knob thrA, thrB, depth, bleed, hysteresis, open, hold, close, lookahead, hp;
     Choice mode, output, overlap;

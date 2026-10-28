@@ -65,3 +65,18 @@ target_include_directories(DvlceDuetSidechainTest PRIVATE "${juce_SOURCE_DIR}/mo
 add_executable(DvlceDuetSplitTest tools/split_test.cpp)
 target_link_libraries(DvlceDuetSplitTest PRIVATE DvlceDuet)
 target_include_directories(DvlceDuetSplitTest PRIVATE "${juce_SOURCE_DIR}/modules" Source)
+
+# Vendored Quantum UI and OFL typefaces; no private repository dependency.
+juce_add_binary_data(DvlceUiFonts NAMESPACE DvlceUiFonts HEADER_NAME DvlceUiFonts.h SOURCES
+    Source/ui/fonts/Rajdhani-Medium.ttf Source/ui/fonts/Rajdhani-SemiBold.ttf
+    Source/ui/fonts/BarlowSemiCondensed-Medium.ttf Source/ui/fonts/BarlowSemiCondensed-SemiBold.ttf)
+juce_add_binary_data(DvlceFactory NAMESPACE DvlceFactory HEADER_NAME DvlceFactory.h SOURCES ../presets/factory.json)
+target_sources(DvlceDuet PRIVATE Source/ui/Theme.cpp Source/ui/DvlceLookAndFeel.cpp)
+target_link_libraries(DvlceDuet PUBLIC DvlceUiFonts DvlceFactory)
+if(MSVC)
+    target_compile_options(DvlceDuet PRIVATE /utf-8)
+endif()
+
+add_executable(DvlceDuetPresetTest tools/preset_test.cpp)
+target_link_libraries(DvlceDuetPresetTest PRIVATE DvlceDuet)
+target_include_directories(DvlceDuetPresetTest PRIVATE "${juce_SOURCE_DIR}/modules")
